@@ -1,0 +1,11 @@
+@font-face {
+  font-family: 'webfont';
+  font-display: swap;
+  src: url('webfont.woff') format('woff');
+}
+
+body {
+  font-family: 'webfont' !important;
+  background: #66ccff;
+  display: flex;
+}

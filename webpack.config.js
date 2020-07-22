@@ -2,12 +2,30 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const webpack = require('webpack')
 
 module.exports = {
   mode: 'development',
   // 生成转换后代码到原始代码的映射，用于开发环境，详情见官网
   // https://webpack.docschina.org/configuration/devtool/#%E5%AF%B9%E4%BA%8E%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83
   devtool: 'source-map',
+  // 配置 webpack-dev-server
+  // 打包后保存至内存中 
+  devServer: {
+    open: true,
+    port: 8081,
+    contentBase: './dist',
+    // 不自动刷新浏览器，只使用热更新
+    // 配合 HotModuleReplacementPlugin 保留状态，模块化刷新
+    hotOnly: true,
+    // 本地代理
+    proxy: {
+      // 匹配
+      '/api': {
+        target: 'http://localhost:9092'
+      }
+    }
+  },
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, './dist'),
@@ -39,13 +57,13 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          // {
-          //   loader: 'style-loader',
-          //   options: {
-          //     injectType: 'singletonStyleTag' // 合成为单个 style
-          //   }
-          // },
-          MiniCssExtractPlugin.loader,
+          {
+            loader: 'style-loader',
+            options: {
+              injectType: 'singletonStyleTag' // 合成为单个 style
+            }
+          },
+          // MiniCssExtractPlugin.loader,
           'css-loader',
         ], // 从右往左执行
       },
@@ -83,5 +101,12 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: '[name].[chunkhash:8].css'
     }),
+    //! 热模块替换
+    // 保留状态，只更新改变的模块
+    //! HMR 只支持 style-loader，不支持抽离成独立文件引入的 css
+    //! 对于 js 模块的 HMR，需要在对应代码中手动设置监听某一模块，当那个模块的内容改变，会触发回调
+    // 原理：给每个模块赋了一个 id，当某模块发生改变时，通过 id 删除该模块，再重新生成
+    // React Hot Loader / Vue Loader / ...
+    new webpack.HotModuleReplacementPlugin()
   ]
 }

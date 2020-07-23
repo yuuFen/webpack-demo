@@ -1,0 +1,21 @@
+{
+  "presets": [
+    //! 完整的 es 新特性库，
+    // 通过全局对象引入，会造成全局污染
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "edge": "17",
+          "firefox": "60",
+          "chrome": "67",
+          "safari": "11.1"
+        },
+        "corejs": 2,
+        //! 按需注入，不指定则完整引入，贼大
+        "useBuiltIns": "usage"
+      }
+    ],
+    "@babel/preset-react"
+  ]
+}

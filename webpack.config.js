@@ -8,7 +8,7 @@ module.exports = {
   mode: 'development',
   // 生成转换后代码到原始代码的映射，用于开发环境，详情见官网
   // https://webpack.docschina.org/configuration/devtool/#%E5%AF%B9%E4%BA%8E%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83
-  devtool: 'source-map',
+  // devtool: 'source-map',
   // 配置 webpack-dev-server
   // 打包后保存至内存中 
   devServer: {
@@ -82,6 +82,38 @@ module.exports = {
           'postcss-loader', // 扩展当前 css：为 css3 属性加上前缀
           'less-loader',
         ]
+      },
+      //! 使用 babel
+      // 分析依赖 => 抽象语法树AST => 通过语法转换规则转换代码 => 生成代码
+      // babel-loader 是 webpack 与 @babel/core 的通信桥梁
+      // 真正做代码转换工作的是 @babel/preset-env
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          // 挪到 .babelrc
+          // options: {
+          //   presets: [
+          //     //! 完整的 es 新特性库，
+          //     // 通过全局对象引入，会造成全局污染
+          //     [
+          //       '@babel/preset-env', 
+          //       {
+          //         targets: {
+          //           edge: '17',
+          //           firefox: '60',
+          //           chrome: '67',
+          //           safari: '11.1'
+          //         },
+          //         corejs: 2,
+          //         //! 按需注入，不指定则完整引入，贼大
+          //         useBuiltIns: 'usage', 
+          //       }
+          //     ]
+          //   ]
+          // }
+        }
       }
     ]
   },
@@ -107,6 +139,6 @@ module.exports = {
     //! 对于 js 模块的 HMR，需要在对应代码中手动设置监听某一模块，当那个模块的内容改变，会触发回调
     // 原理：给每个模块赋了一个 id，当某模块发生改变时，通过 id 删除该模块，再重新生成
     // React Hot Loader / Vue Loader / ...
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
   ]
 }
